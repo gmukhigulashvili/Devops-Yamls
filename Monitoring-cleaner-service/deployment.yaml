@@ -1,0 +1,40 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    description: Lykke Monitoring-Service-Cleaner
+  labels:
+    app: monitoring-cleaner
+    tier: monitoring
+  name: monitoring-cleaner
+  namespace: monitoring-backend
+spec:
+  minReadySeconds: 10
+  replicas: 1
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: monitoring-cleaner
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: monitoring-cleaner
+    spec:
+      containers:
+      - env:
+        - name: IPADDRESS
+          value: monitoring-service.lykke-service.svc.cluster.local
+        image: bekakochauri/monitoringcleaner:2.0
+        imagePullPolicy: Always
+        name: monitoring-cleaner
+      nodeSelector:
+        type: Monitoring
+      tolerations:
+      - effect: NoSchedule
+        operator: Exists
+
